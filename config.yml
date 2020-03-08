@@ -1,0 +1,17 @@
+discordrb:
+  # The application token of your bot
+  # can be stored in a file, an environment variable or given by the command line (no conf required).
+  # comment/uncomment the necessary lines
+  token:
+    file: token
+    # environment: DISCORD_HOT_BOT_TOKEN
+
+  # Discordrb's command prefix
+  prefix: "!"
+
+components:
+  # Where the components are
+  directory: components
+
+  # The suffix/extension of components files
+  suffix: .cmp.rb
