@@ -9,7 +9,7 @@ bot = DiscordHotBot::Bot.new(config_path: File.join(__dir__, 'config.yml'))
 bot.run true
 
 puts 'Running Press q or ^C to quit.'
-until ['q', "\x03"].include? STDIN.getch; end
+until ['q', "\x03"].include? STDIN.getch(intr: true); end
 puts 'Quitting...'
 
 bot.stop true
