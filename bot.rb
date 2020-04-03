@@ -1,3 +1,4 @@
+#!/bin/env ruby
 require 'io/console'
 require_relative 'discord_hot_bot/bot'
 require_relative 'discord_hot_bot/config'
