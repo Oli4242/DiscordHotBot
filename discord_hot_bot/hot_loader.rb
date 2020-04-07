@@ -67,8 +67,7 @@ module DiscordHotBot
     end
 
     # Monitors the components directory:
-    # when a change occurs it finds the dependent component(s)
-    # then it makes a ReloadRequest so the right file gets reloaded.
+    # when a change occurs it finds the dependent component(s) and loads them
     def listen
       @listener ||= Listen.to(@directory) do |modified, added, removed|
         to_reload = Set[]                                                            # list of component path to reload
