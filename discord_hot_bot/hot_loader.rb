@@ -1,6 +1,6 @@
 require 'listen'
+require 'set'
 require_relative 'component_wrap'
-require_relative 'reload_request'
 
 module DiscordHotBot
 
@@ -12,13 +12,14 @@ module DiscordHotBot
       "(#{severity} : #{progname} @ #{datetime.strftime(Discordrb::LOG_TIMESTAMP_FORMAT)}) #{msg}\n"
     })
 
-    attr_reader :suffix, :bot
+    attr_reader :suffix, :bot, :mutex
 
     def initialize(bot, config)
       @bot = bot
       @directory = config.components_dir
       @suffix = config.components_suffix
-      @loaded_components = []            # list of loaded components as a list of ComponentWrap
+      @loaded_components = []             # list of loaded components as a list of ComponentWrap
+      @mutex = Mutex.new                  # for thread safety
       error "Components directory not found: #{@directory}" unless File.directory?(@directory)
     end
 
@@ -70,16 +71,23 @@ module DiscordHotBot
     # then it makes a ReloadRequest so the right file gets reloaded.
     def listen
       @listener ||= Listen.to(@directory) do |modified, added, removed|
-        to_reload = []                                                               # list of component path to reload
+        to_reload = Set[]                                                            # list of component path to reload
 
         (added + modified + removed).each do |file|
-          to_reload.push(file) if file.end_with? @suffix                             # add the file to the reload list if it's a component
+          to_reload.add(file) if file.end_with? @suffix                              # add the file to the reload list if it's a component
 
           dependent_comps = @loaded_components.select{ |comp| comp.depend_on? file } # find every components that depend on the current file
           to_reload += dependent_comps.map(&:path) if dependent_comps                # add their path to the reload list
         end
 
-        @bot.raise_event ReloadRequest.new(to_reload.uniq) unless to_reload.empty?
+        unless to_reload.empty?
+          @mutex.synchronize do
+            info 'Waiting for all event threads to finish...' unless @bot.event_threads.empty?
+            @bot.event_threads.each(&:join)
+
+            to_reload.each { |file| reload! file }
+          end
+        end
       end
 
       @listener.start unless @listener.processing?

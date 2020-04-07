@@ -7,8 +7,9 @@ module DiscordHotBot
   #
   # The whole project in a nutshell:
   # At initialization the hot loader finds and loads all the components.
-  # At runtime the hot loader monitors the components directory and triggers a ReloadRequest
-  # when a file needs to be reloaded. The bot handles this event and reloads the file(s).
+  # At runtime the hot loader monitors the components directory.
+  # When a file needs to be reloaded the hot loader prevents the bot from handling new events
+  # and waits for the current events threads to be terminated then it safely reloads the file(s).
 
   class Bot < Discordrb::Commands::CommandBot
     def initialize(config_path:, **attributes)
@@ -16,19 +17,15 @@ module DiscordHotBot
 
       super token: config.token, prefix: config.prefix, **attributes
 
-      @raise_event_mutex = Mutex.new            # mutex to make raise_event thread-safe
       @hot_loader = HotLoader.new(self, config)
       @hot_loader.cold_load!                    # cold loads the components at init
-
-      add_handler ReloadRequestHandler.new(nil, proc { |reload_request|
-        reload_request.files.each { |file| @hot_loader.reload! file }
-      })
     end
 
-    # A thread-safe version of discordrb's raise_event to avoid any kind of race condition.
-    # (might be unnecessary due to Ruby's GIL but I prefer to play it safe...)
+    # A thread-safe version of discordrb's raise_event.
+    # It can be paused when a component is needs to be reloaded.
     def raise_event(event)
-      @raise_event_mutex.synchronize { super(event) }
+      sleep 0.1 while @hot_loader.mutex.locked?
+      super(event)
     end
 
     def run(async = false)
