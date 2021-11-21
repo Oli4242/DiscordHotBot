@@ -12,4 +12,4 @@ puts 'Running Press q or ^C to quit.'
 until ['q', "\x03"].include? STDIN.getch(intr: true); end
 puts 'Quitting...'
 
-bot.stop true
+bot.stop

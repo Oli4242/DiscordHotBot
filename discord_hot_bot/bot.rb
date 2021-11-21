@@ -33,9 +33,9 @@ module DiscordHotBot
       super(async)
     end
 
-    def stop(no_sync = false)
+    def stop
       @hot_loader.stop
-      super(no_sync)
+      super
     end
   end
 
