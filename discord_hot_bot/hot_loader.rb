@@ -36,7 +36,12 @@ module DiscordHotBot
       comp_name = ComponentWrap.guess_component_name(path, @suffix)
       info "Loading: #{comp_name} from #{path}"
 
-      load path
+      begin
+        load path
+      rescue SyntaxError => e
+        error "Syntax error in #{comp_name}: #{e}"
+        return
+      end
       component_wrap = ComponentWrap.from_path(self, path)
 
       if component_wrap
