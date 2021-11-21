@@ -8,7 +8,7 @@ DiscordHotBot is a project based on [discordrb](https://github.com/discordrb/dis
   cd <your_project_name>
   bundle
   ```
-2. Copy your application token in the `token` file
+2. Copy your application token in the file `discord.token`
 3. Run the bot: `ruby bot.rb`
 4. Code :)
 
