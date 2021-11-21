@@ -17,7 +17,7 @@ The configuration file is `config.yml` (YAML format), open it to know more, it i
 
 The only subtlety is that there are 3 ways to pass the [application token](https://discordapp.com/developers/applications/):
 1. From the command line: `ruby bot.rb <token here>`
-2. From a file. The `token` file is protected by a `.gitignore` rule that prevents it from being committed by error.
+2. From a file. `*.token` files are protected by a `.gitignore` rule that prevents them from being committed by error.
 3. From an environment variable. You'll have to edit `config.yml` to enable that.
 
 ## Components

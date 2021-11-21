@@ -3,7 +3,7 @@ discordrb:
   # can be stored in a file, an environment variable or given by the command line (no conf required).
   # comment/uncomment the necessary lines
   token:
-    file: token
+    file: discord.token
     # environment: DISCORD_HOT_BOT_TOKEN
 
   # Discordrb's command prefix
